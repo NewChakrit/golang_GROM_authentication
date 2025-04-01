@@ -43,12 +43,32 @@ func main() {
 	db.AutoMigrate(&Book{})
 	fmt.Println("Migrate Successful!")
 
-	newBook := &Book{
-		Name:        "New",
-		Authur:      "Christ Nolan",
-		Description: "History",
-		Price:       355,
-	}
+	// ----- Create Book ----- //
+	//newBook := &Book{
+	//	Name:        "New",
+	//	Authur:      "Christ Nolan",
+	//	Description: "History",
+	//	Price:       355,
+	//}
 
-	createBook(db, newBook)
+	//createBook(db, newBook)
+
+	// ----- Get Book ----- //
+	//currentBook := getBook(db, 1)
+
+	//fmt.Println(currentBook)
+
+	// ----- Update Book ----- //
+	//currentBook.Name = "Name"
+	//currentBook.Price = 280
+	//
+	//updateBook(db, currentBook)
+
+	// ----- Delete Book ----- //
+	// db.Delete คือถ้าใน table มี field deleted_at มันจะเป็นการ soft delete ไม่ใช่การลบ database ออกไปจริงๆ
+	// ใน pgadmin จะ stamp deleted_at
+	currentBook := getBook(db, 1)
+
+	// แต่ถ้าลอง get ดูจะไม่เจอแล้ว
+	fmt.Println(currentBook) // record not found
 }
