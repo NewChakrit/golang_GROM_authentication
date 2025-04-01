@@ -42,4 +42,13 @@ func main() {
 
 	db.AutoMigrate(&Book{})
 	fmt.Println("Migrate Successful!")
+
+	newBook := &Book{
+		Name:        "New",
+		Authur:      "Christ Nolan",
+		Description: "History",
+		Price:       355,
+	}
+
+	createBook(db, newBook)
 }
