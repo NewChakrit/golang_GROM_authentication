@@ -5,5 +5,5 @@ type Book struct {
 	Name        string
 	Authur      string
 	Description string
-	Price       string
+	Price       uint
 }

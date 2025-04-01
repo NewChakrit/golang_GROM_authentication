@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"log"
+	"os"
+	"time"
 )
 
 const (
@@ -19,11 +23,23 @@ func main() {
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// New logger for detailed SQL logging
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold: time.Second, // Slow SQL threshold
+			LogLevel:      logger.Info, // Log level
+			Colorful:      true,        // Enable color
+		},
+	)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: newLogger,
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
 
-	print(db)
-	fmt.Println("Connect Successful!")
+	db.AutoMigrate(&Book{})
+	fmt.Println("Migrate Successful!")
 }
