@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -41,7 +43,27 @@ func main() {
 	}
 
 	db.AutoMigrate(&Book{})
-	fmt.Println("Migrate Successful!")
+	//fmt.Println("Migrate Successful!")
+
+	// // ----- Setup Fiber ----- // //
+	app := fiber.New()
+
+	app.Get("/books", func(ctx *fiber.Ctx) error {
+		return ctx.JSON(getBooks(db))
+	})
+
+	app.Get("/book/:id", func(ctx *fiber.Ctx) error {
+		id, err := strconv.Atoi(ctx.Params("id"))
+		if err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+		book := getBook(db, id)
+		return ctx.JSON(book)
+	})
+
+	app.Listen(":8080")
+
+	// --------------------------------------------------------//
 
 	// ----- Create Book ----- //
 	//newBook := &Book{
@@ -79,11 +101,11 @@ func main() {
 
 	// ----- Search Book ----- //
 
-	currentBooks := searchBooks(db, "Aura")
-	//fmt.Println(currentBooks)
-
-	for _, book := range currentBooks {
-		fmt.Println(book.ID, book.Name, book.Authur, book.Price)
-	}
+	//currentBooks := searchBooks(db, "Aura")
+	////fmt.Println(currentBooks)
+	//
+	//for _, book := range currentBooks {
+	//	fmt.Println(book.ID, book.Name, book.Authur, book.Price)
+	//}
 
 }

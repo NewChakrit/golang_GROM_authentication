@@ -8,10 +8,10 @@ import (
 
 type Book struct {
 	gorm.Model
-	Name        string
-	Authur      string
-	Description string
-	Price       uint
+	Name        string `json:"name"`
+	Authur      string `json:"authur"`
+	Description string `json:"description"`
+	Price       uint   `json:"price"`
 }
 
 func createBook(db *gorm.DB, book *Book) {
@@ -26,7 +26,7 @@ func createBook(db *gorm.DB, book *Book) {
 
 // ----- Get Book ----- //
 
-func getBook(db *gorm.DB, id uint) *Book {
+func getBook(db *gorm.DB, id int) *Book {
 	var book Book
 	result := db.First(&book, id)
 
@@ -35,6 +35,19 @@ func getBook(db *gorm.DB, id uint) *Book {
 	}
 
 	return &book
+}
+
+// ----- Get All Book ----- //
+
+func getBooks(db *gorm.DB) []Book {
+	var books []Book
+	result := db.Find(&books) // Find ถ้าไม่ใส่เงื่อนไขจะเท่ากับ Select *
+
+	if result.Error != nil {
+		log.Fatalf("Error geting book: %v", result.Error)
+	}
+
+	return books
 }
 
 // ----- Update Book ----- //
