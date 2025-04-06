@@ -45,10 +45,10 @@ func main() {
 
 	// ----- Create Book ----- //
 	//newBook := &Book{
-	//	Name:        "New",
-	//	Authur:      "Christ Nolan",
-	//	Description: "History",
-	//	Price:       355,
+	//	Name:        "Aura",
+	//	Authur:      "Grace",
+	//	Description: "Study",
+	//	Price:       700,
 	//}
 
 	//createBook(db, newBook)
@@ -65,10 +65,25 @@ func main() {
 	//updateBook(db, currentBook)
 
 	// ----- Delete Book ----- //
+	//currentBook := getBook(db, 1)
 	// db.Delete คือถ้าใน table มี field deleted_at มันจะเป็นการ soft delete ไม่ใช่การลบ database ออกไปจริงๆ
 	// ใน pgadmin จะ stamp deleted_at
-	currentBook := getBook(db, 1)
+	//deleteBook(db, 1)
 
-	// แต่ถ้าลอง get ดูจะไม่เจอแล้ว
-	fmt.Println(currentBook) // record not found
+	//fmt.Println(currentBook)
+
+	// ----- Search Book ----- //
+
+	//currentBook := searchBook(db, "Aura")
+	//fmt.Println(currentBook)
+
+	// ----- Search Book ----- //
+
+	currentBooks := searchBooks(db, "Aura")
+	//fmt.Println(currentBooks)
+
+	for _, book := range currentBooks {
+		fmt.Println(book.ID, book.Name, book.Authur, book.Price)
+	}
+
 }
