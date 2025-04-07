@@ -61,6 +61,67 @@ func main() {
 		return ctx.JSON(book)
 	})
 
+	app.Post("/books", func(ctx *fiber.Ctx) error {
+		book := new(Book)
+		if err := ctx.BodyParser(book); err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		err := createBook(db, book)
+		if err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		return ctx.JSON(fiber.Map{
+			"message": "Create Book Successful!",
+		})
+	})
+
+	app.Put("/book/:id", func(ctx *fiber.Ctx) error {
+		id, err := strconv.Atoi(ctx.Params("id"))
+		if err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+		book := new(Book)
+		if err := ctx.BodyParser(book); err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		book.ID = uint(id)
+
+		err = updateBook(db, book)
+		if err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		return ctx.JSON(fiber.Map{
+			"message": "Update Book Successful!",
+		})
+	})
+
+	app.Delete("/book/:id", func(ctx *fiber.Ctx) error {
+		id, err := strconv.Atoi(ctx.Params("id"))
+		if err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		book := new(Book)
+		if err := ctx.BodyParser(book); err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		book.ID = uint(id)
+
+		err = deleteBook(db, id)
+		if err := ctx.BodyParser(book); err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		return ctx.JSON(fiber.Map{
+			"message": "Delete Book Successful!",
+		})
+	})
+
 	app.Listen(":8080")
 
 	// --------------------------------------------------------//

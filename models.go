@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"log"
 )
@@ -14,14 +13,16 @@ type Book struct {
 	Price       uint   `json:"price"`
 }
 
-func createBook(db *gorm.DB, book *Book) {
+// ----- Create Book ----- //
+
+func createBook(db *gorm.DB, book *Book) error {
 	result := db.Create(book)
 
 	if result.Error != nil {
-		log.Fatalf("Error creating book: %v", result.Error)
+		return result.Error
 	}
 
-	fmt.Println("Create Book Successful!")
+	return nil
 }
 
 // ----- Get Book ----- //
@@ -52,29 +53,33 @@ func getBooks(db *gorm.DB) []Book {
 
 // ----- Update Book ----- //
 
-func updateBook(db *gorm.DB, book *Book) {
-	result := db.Save(&book)
+func updateBook(db *gorm.DB, book *Book) error {
+	//result := db.Save(&book)
+
+	result := db.Model(&book).Updates(*book) // handle created_at != nil
 
 	if result.Error != nil {
-		log.Fatalf("Update Book Failed!: %v", result.Error)
+		return result.Error
 	}
 
-	fmt.Println("Update Book Successful!")
+	return nil
 }
 
 // ----- Delete Book ----- //
 
-func deleteBook(db *gorm.DB, id uint) {
+func deleteBook(db *gorm.DB, id int) error {
 	var book Book
-	result := db.Delete(&book, id)
+	//result := db.Delete(&book, id)
 
 	// ถ้า hard delete ต้องใช้ db.Unscoped().Delete(&book, id)
 
+	result := db.Unscoped().Delete(&book, id)
+
 	if result.Error != nil {
-		log.Fatalf("Delete Book Failed!: %v", result.Error)
+		return result.Error
 	}
 
-	fmt.Println("Delete Book Successful!")
+	return nil
 }
 
 // ----- Search Book ----- //
