@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
+
+	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,6 +21,26 @@ const (
 	password = "mypassword"
 	dbname   = "mydatabase"
 )
+
+func authRequired(ctx *fiber.Ctx) error {
+	cookie := ctx.Cookies("jwt")
+	jwtSecretKey := "TestSecret"
+
+	token, err := jwt.ParseWithClaims(cookie, jwt.MapClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(jwtSecretKey), nil
+		})
+
+	if err != nil || !token.Valid {
+		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	claim := token.Claims.(jwt.MapClaims)
+
+	fmt.Println(claim["user_id"])
+
+	return ctx.Next()
+}
 
 func main() {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -47,6 +69,7 @@ func main() {
 
 	// // ----- Setup Fiber ----- // //
 	app := fiber.New()
+	app.Use("/books", authRequired)
 
 	app.Get("/books", func(ctx *fiber.Ctx) error {
 		return ctx.JSON(getBooks(db))
@@ -123,6 +146,7 @@ func main() {
 	})
 
 	// ------------------------- User -------------------------//
+	// Register
 
 	app.Post("/register", func(ctx *fiber.Ctx) error {
 		user := new(User)
@@ -137,6 +161,30 @@ func main() {
 
 		return ctx.JSON(fiber.Map{
 			"message": "Register Successful!",
+		})
+	})
+
+	// Login
+	app.Post("/login", func(ctx *fiber.Ctx) error {
+		user := new(User)
+		if err := ctx.BodyParser(user); err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		token, err := login(db, user)
+		if err != nil {
+			return ctx.SendStatus(fiber.StatusUnauthorized)
+		}
+
+		ctx.Cookie(&fiber.Cookie{
+			Name:     "jwt",
+			Value:    token,
+			Expires:  time.Now().Add(time.Hour * 3),
+			HTTPOnly: true,
+		})
+
+		return ctx.JSON(fiber.Map{
+			"message": "Login Successful!",
 		})
 	})
 
