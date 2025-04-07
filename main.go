@@ -42,7 +42,7 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&Book{})
+	db.AutoMigrate(&Book{}, &User{})
 	//fmt.Println("Migrate Successful!")
 
 	// // ----- Setup Fiber ----- // //
@@ -119,6 +119,24 @@ func main() {
 
 		return ctx.JSON(fiber.Map{
 			"message": "Delete Book Successful!",
+		})
+	})
+
+	// ------------------------- User -------------------------//
+
+	app.Post("/register", func(ctx *fiber.Ctx) error {
+		user := new(User)
+		if err := ctx.BodyParser(user); err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		err = createUser(db, user)
+		if err := ctx.BodyParser(user); err != nil {
+			return ctx.SendStatus(fiber.StatusBadRequest)
+		}
+
+		return ctx.JSON(fiber.Map{
+			"message": "Register Successful!",
 		})
 	})
 
