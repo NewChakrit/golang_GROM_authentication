@@ -64,8 +64,45 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&Book{}, &User{})
+	db.AutoMigrate(&Book{}, &User{}, &Author{}, AuthorBook{}, &Publisher{})
 	//fmt.Println("Migrate Successful!")
+
+	// // ----- Set Relation ----- // //
+
+	//publisher := Publisher{
+	//	Details: "Publisher Details",
+	//	Name:    "Publisher Name",
+	//}
+	//
+	//_ = createPublisher(db, &publisher)
+	//
+	//author1 := Author{
+	//	Name: "Author Name",
+	//}
+	//
+	//_ = createAuthor(db, &author1)
+	//
+	//author2 := Author{
+	//	Name: "Author Name",
+	//}
+	//
+	//_ = createAuthor(db, &author2)
+	//
+	//// Example data for a new book with an author
+	//book := Book{
+	//	Name:        "New Book",
+	//	Authur:      "JK Roller",
+	//	Description: "Book Description",
+	//	PublisherID: publisher.ID,               // Use the ID of the publisher created above
+	//	Authors:     []Author{author1, author2}, // Add the created author
+	//}
+	//_ = createBookWithAuthor(db, &book)
+
+	// // ----- Get Relation ----- // //
+
+	book, err := getBookWithPublisher(db, 10)
+	fmt.Println("==============================================")
+	fmt.Println(book.Publisher)
 
 	// // ----- Setup Fiber ----- // //
 	app := fiber.New()
